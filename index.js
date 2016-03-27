@@ -42,9 +42,9 @@ class Iterator {
     take(limit) {
         let self = this;
         return new Iterator(function* () {
-            for (let item of self._) {
-                if (!limit--) return;
+            for (let item of self._) {            
                 yield item;
+                if (!--limit) return;
             }
         }());
     }
