@@ -33,7 +33,7 @@ Reduce an iterator in O(n), instead of consuming it (O(n)) and then reducing the
 ```js
 'use strict';
 
-const Iterator = require('synograph/gentools');
+const Iterator = require('itercol');
 const iter = new Iterator(new Set([1, 2, 3, 4]));
 for (let item of iter.filter(x => console.log(x) || x > 2).map(x => x * 2)) {
     console.log(item);
