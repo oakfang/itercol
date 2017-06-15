@@ -1,53 +1,67 @@
-'use strict';
-
-class Iterator {
-    constructor(inner) {
-        this._ = inner;
-    }
-
-    [Symbol.iterator]() {
-        return this._[Symbol.iterator]();
-    }
-
-    invoke() {
-        const args = Array.from(arguments);
-        return this._[args[0]].apply(this._, args.slice(1));
-    }
-
-    filter(predicate) {
-        let self = this;
-        return new Iterator((function*() {
-            for (let item of self._) {
-                if (predicate(item)) yield item;
-            }
-        })());
-    }
-
-    map(mapper) {
-        let self = this;
-        return new Iterator((function*() {
-            for (let item of self._) {
-                yield mapper(item);
-            }
-        })());
-    }
-
-    reduce(reducer, accumolator) {
-        for (let item of this._) {
-            accumolator = reducer(accumolator, item);
-        }
-        return accumolator;
-    }
-
-    take(limit) {
-        let self = this;
-        return new Iterator(function* () {
-            for (let item of self._) {            
-                yield item;
-                if (!--limit) return;
-            }
-        }());
-    }
+function* ifilter(iterable, predicate) {
+  for (const x of iterable) {
+    if (predicate(x)) yield x;
+  }
 }
 
-module.exports = Iterator;
+function* imap(iterable, mapper) {
+  for (const x of iterable) {
+    yield mapper(x);
+  }
+}
+
+function* ilimit(iterable, lmt) {
+  let count = 0;
+  for (const x of iterable) {
+    if (count++ === lmt) return;
+    yield x;
+  }
+}
+
+function* ijoin(iterables) {
+  for (const it of iterables) {
+    yield* it;
+  }
+}
+
+const iterPrototype = {
+    filter(predicate) {
+        return iter(ifilter(this._iterable, predicate));
+    },
+
+    map(mapper) {
+        return iter(imap(this._iterable, mapper));
+    },
+
+    limit(lmt) {
+        return iter(ilimit(this._iterable, lmt));
+    },
+
+    [Symbol.iterator]() {
+        return this._iterable[Symbol.iterator]();
+    },
+
+    flatten() {
+        return iter(ijoin(this._iterable));
+    },
+};
+
+function iter(iterable) {
+    const _iter = Object.create(iterPrototype);
+    _iter._iterable = iterable;
+    return _iter;
+}
+
+iter.extend = (name, extension) => {
+    if (!extension) {
+        extension = name;
+        name = extension.name;
+    }
+    Object.assign(iterPrototype, {
+        [name](...args) {
+            return iter(extension(this._iterable, ...args));
+        }
+    });
+};
+
+module.exports = iter;

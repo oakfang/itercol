@@ -2,50 +2,32 @@
 A lazy, generator-based, JS library for handling sequences in a concise, efficient way.
 
 ## API
-### class:Iterator(iterator)
-Create a new instance of an Iterator by passing its constructor an iterator.
+### iter(iterator)
+Create a new `iter` by passing its constructor an iterator.
 
 ```js
-const iter = new Iterator(new Set([1, 2, 3, 4]));
+const it = iter(new Set([1, 2, 3, 4]));
 ```
 
-### Iterator::invoke(methodName, ...args)
-Invoke a method of the wrapped iterator.
+### iter::filter(predicate)
+Return a filtered iter (lazy).
 
-```js
-const iter = new Iterator(new Set([1, 2, 3, 4]));
-iter.invoke('add', 5);
-```
+### iter::map(mapper)
+Return a mapped iter (lazy).
 
-### Iterator::filter(predicate)
-Return a filtered iterator (lazy).
+### iter::limit(limit)
+Return a limited iter.
 
-### Iterator::map(mapper)
-Return a mapped iterator (lazy).
-
-### Iterator::take(limit)
-Return a limited iterator.
-
-### Iterator::reduce(reducer, accumolator)
-Reduce an iterator in O(n), instead of consuming it (O(n)) and then reducing the resulting array (O(n)).
+### iter::flatten()
+Flatten any inner iterable of iterables.
 
 ## Usage
 ```js
-'use strict';
-
-const Iterator = require('itercol');
-const iter = new Iterator(new Set([1, 2, 3, 4]));
-for (let item of iter.filter(x => console.log(x) || x > 2).map(x => x * 2)) {
-    console.log(item);
-}
-/* this will print :
-1
-2
-3
-6
-4
-8
-*/
-
-let arr = Array.from(iter); // easily consume the iterator :)
+const it = iter([
+    iter(counter()).map(x => x * 1).limit(3),
+    iter(counter()).map(x => x * 2).limit(3),
+    iter(counter()).map(x => x * 3).limit(3),
+]).flatten();
+const arr = Array.from(it);
+t.deepEqual(arr, [0, 1, 2, 0, 2, 4, 0, 3, 6]);
 ```
