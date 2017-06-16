@@ -13,8 +13,8 @@ function* imap(iterable, mapper) {
 function* ilimit(iterable, lmt) {
   let count = 0;
   for (const x of iterable) {
-    if (count++ === lmt) return;
     yield x;
+    if (++count === lmt) return;
   }
 }
 
@@ -44,6 +44,12 @@ const iterPrototype = {
     flatten() {
         return iter(ijoin(this._iterable));
     },
+
+    forEach(fn) {
+        for (const x of this._iterable) {
+            fn(x);
+        }
+    }
 };
 
 function iter(iterable) {

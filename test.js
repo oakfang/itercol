@@ -79,3 +79,21 @@ test('iter extend', t => {
     arr = Array.from(it);
     t.deepEqual(arr, [0, 1, 2, 4, 3, 6]);
 });
+
+test('iter foreach consumes', t => {
+    let sideEffect = {effect: 0};
+    function* counterWithSideEffect() {
+        while (true) {
+            yield sideEffect.effect;
+            sideEffect.effect += 1;
+        }
+    }
+    const it = iter(counterWithSideEffect()).map(x => x * 3)
+                                            .filter(x => x % 2 === 0)
+                                            .limit(3);
+    t.is(sideEffect.effect, 0);
+    const arr = [];
+    it.forEach(x => arr.push(x));
+    t.deepEqual(arr, [0, 6, 12]);
+    t.is(sideEffect.effect, 4);
+});

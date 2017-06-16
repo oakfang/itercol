@@ -31,3 +31,6 @@ const it = iter([
 const arr = Array.from(it);
 t.deepEqual(arr, [0, 1, 2, 0, 2, 4, 0, 3, 6]);
 ```
+
+## iter::forEach(fn)
+Consume the `iter` object in a functional manner. This function doesn't chain.
